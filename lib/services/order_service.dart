@@ -51,21 +51,12 @@ class OrderService extends GetxService {
       isConnected.value = false;
     });
 
-    // 1. RECONNECTION SYNC: Receive full list when connecting
-    socket.on('initial_orders', (data) {
-      if (data is List) {
-        orders.assignAll(data);
-      }
+    socket.on('delivery:new', (data) {
+      orders.addAll(data);
     });
 
-    // 2. NEW ORDER: Add to list
-    socket.on('new_order', (data) {
-      orders.add(data);
-    });
-
-    // 3. ORDER TAKEN: Remove from list (someone else took it)
-    socket.on('order_taken', (orderId) {
-      orders.removeWhere((element) => element['id'] == orderId);
+    socket.on('delivery:accepted', (response) {
+      orders.removeWhere((element) => element['id'] == response.data.deliveryId);
     });
   }
 
