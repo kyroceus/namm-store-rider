@@ -1,8 +1,8 @@
 import 'package:get/get.dart';
-import 'package:nammastore_rider/services/order_service.dart';
+import 'package:nammastore_rider/controller/socket_controller.dart';
 
 class DriverDashboardController extends GetxController {
-  final OrderService orderService = Get.find<OrderService>();
+  final SocketController socketController = Get.find<SocketController>();
 
   @override
   void onInit() {
@@ -11,10 +11,10 @@ class DriverDashboardController extends GetxController {
     final fakeJwt = "eyJhbGciOiJIUzI1NiJ9.USER_PAYLOAD_HERE.SIGNATURE";
 
     // Initialize Socket
-    orderService.initSocket(fakeJwt);
+    socketController.init(fakeJwt);
   }
 
   void pickOrder(String orderId) {
-    orderService.pickOrder(orderId);
+    socketController.pickOrder(orderId);
   }
 }

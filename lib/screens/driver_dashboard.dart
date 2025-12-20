@@ -15,7 +15,7 @@ class DriverDashboard extends GetView<DriverDashboardController> {
           Obx(
             () => Icon(
               Icons.circle,
-              color: controller.orderService.isConnected.value
+              color: controller.socketController.isConnected.value
                   ? Colors.green
                   : Colors.red,
             ),
@@ -24,13 +24,13 @@ class DriverDashboard extends GetView<DriverDashboardController> {
         ],
       ),
       body: Obx(() {
-        if (controller.orderService.orders.isEmpty) {
+        if (controller.socketController.orders.isEmpty) {
           return const Center(child: Text("No orders available... waiting"));
         }
         return ListView.builder(
-          itemCount: controller.orderService.orders.length,
+          itemCount: controller.socketController.orders.length,
           itemBuilder: (ctx, i) {
-            final order = controller.orderService.orders[i];
+            final order = controller.socketController.orders[i];
             return Card(
               margin: const EdgeInsets.all(10),
               child: ListTile(
