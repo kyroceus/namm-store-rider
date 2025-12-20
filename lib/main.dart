@@ -1,20 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:nammastore_rider/Bindings/onboarding_binding.dart';
+import 'package:nammastore_rider/routes/app_pages.dart';
 import 'package:nammastore_rider/services/http_service.dart';
 
-import 'controller/auth_controller.dart';
-import 'controller/otp_controller.dart';
-import 'routes/app_pages.dart';
-import 'services/auth_service.dart';
+import 'package:nammastore_rider/controller/auth_controller.dart';
+import 'package:nammastore_rider/controller/otp_controller.dart';
+import 'package:nammastore_rider/services/auth_service.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await GetStorage.init();
   HttpService.init(
     baseUrl: "https://namma-store-backend-staging.onrender.com/api",
   );
   Get.put(AuthService());
   Get.put(AuthController(authService: Get.find<AuthService>()));
   Get.lazyPut(() => OtpController(), fenix: true);
+
+  // Initialize Onboarding dependencies
+  OnboardingBinding().dependencies();
 
   runApp(MyApp());
 }
@@ -28,9 +34,7 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       getPages: AppPages.routes,
-      initialRoute: authController.token.isNotEmpty
-          ? Routes.loginScreen
-          : Routes.driverDashboard,
+      initialRoute: Routes.splashScreen,
     );
   }
 }

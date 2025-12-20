@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:nammastore_rider/controller/auth_controller.dart';
 import 'package:nammastore_rider/services/http_service.dart';
+import 'package:nammastore_rider/services/onboarding_service.dart';
 import 'package:nammastore_rider/utils/loading_dialogue.dart';
 import 'package:nammastore_rider/widgets/custom_snackbar.dart';
 
@@ -82,8 +83,9 @@ class AuthService extends GetxService {
         snackBarType: SnackBarType.success,
       );
       await Future.delayed(Duration(milliseconds: 200));
-      Get.offAllNamed(Routes.homeScreen);
+      Get.offAllNamed(Routes.onboardingPersonalInfo);
       authToken = data;
+
       return authToken;
     } catch (e) {
       showCustomSnackBar(

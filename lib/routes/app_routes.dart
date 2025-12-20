@@ -6,4 +6,14 @@ class Routes {
 
   static const homeScreen = '/home-Screen';
   static const driverDashboard = '/driver-Dashboard';
+
+  // Onboarding
+  static const onboardingPhone = '/onboarding-phone';
+  static const onboardingOtp = '/onboarding-otp';
+  static const onboardingPersonalInfo = '/onboarding-personal-info';
+  static const onboardingDocuments = '/onboarding-documents';
+  static const onboardingUploadDoc = '/onboarding-upload-doc';
+  static const onboardingSuccess = '/onboarding-success';
+
+  static const splashScreen = '/splash-screen';
 }
