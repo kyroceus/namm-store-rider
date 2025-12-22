@@ -9,6 +9,8 @@ enum OnboardingStep {
 
 enum DocStatus { pending, uploaded, approved, rejected }
 
+enum DocCategory { personal, vehicle, bank, emergency }
+
 class DocumentModel {
   final String id;
   final String title;
@@ -16,10 +18,12 @@ class DocumentModel {
   final String? backImage;
   DocStatus status;
   final bool requiresBackSide;
+  final DocCategory category;
 
   DocumentModel({
     required this.id,
     required this.title,
+    required this.category,
     this.frontImage,
     this.backImage,
     this.status = DocStatus.pending,
@@ -36,6 +40,10 @@ class PersonalInfoModel {
   String address;
   String language;
   String profileImage;
+  String whatsApp;
+  String secondaryMobile;
+  String bloodGroup;
+  String referralCode;
 
   PersonalInfoModel({
     this.firstName = '',
@@ -46,6 +54,10 @@ class PersonalInfoModel {
     this.address = '',
     this.language = '',
     this.profileImage = '',
+    this.whatsApp = '',
+    this.secondaryMobile = '',
+    this.bloodGroup = '',
+    this.referralCode = '',
   });
 }
 

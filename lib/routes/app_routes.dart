@@ -13,6 +13,7 @@ class Routes {
   static const onboardingPersonalInfo = '/onboarding-personal-info';
   static const onboardingDocuments = '/onboarding-documents';
   static const onboardingUploadDoc = '/onboarding-upload-doc';
+  static const onboardingCategoryDocs = '/onboarding-category-docs';
   static const onboardingSuccess = '/onboarding-success';
 
   static const splashScreen = '/splash-screen';

@@ -6,8 +6,8 @@ import 'package:nammastore_rider/screens/driver_dashboard.dart';
 import 'package:nammastore_rider/Bindings/driver_dashboard_binding.dart';
 import 'package:nammastore_rider/Bindings/onboarding_binding.dart';
 import 'package:nammastore_rider/screens/onboarding/onboarding_document_list_screen.dart';
+import 'package:nammastore_rider/screens/onboarding/onboarding_category_docs_screen.dart';
 import 'package:nammastore_rider/screens/onboarding/onboarding_personal_info_screen.dart';
-import 'package:nammastore_rider/screens/onboarding/onboarding_phone_screen.dart';
 import 'package:nammastore_rider/screens/onboarding/onboarding_success_screen.dart';
 import 'package:nammastore_rider/screens/onboarding/onboarding_upload_doc_screen.dart';
 import 'package:nammastore_rider/screens/splash_screen.dart';
@@ -31,12 +31,6 @@ class AppPages {
 
     // Onboarding Routes
     GetPage(
-      name: Routes.onboardingPhone,
-      page: () => const OnboardingPhoneScreen(),
-      binding: OnboardingBinding(),
-    ),
-
-    GetPage(
       name: Routes.onboardingPersonalInfo,
       page: () => const OnboardingPersonalInfoScreen(),
       binding: OnboardingBinding(),
@@ -44,6 +38,11 @@ class AppPages {
     GetPage(
       name: Routes.onboardingDocuments,
       page: () => const OnboardingDocumentListScreen(),
+      binding: OnboardingBinding(),
+    ),
+    GetPage(
+      name: Routes.onboardingCategoryDocs,
+      page: () => const OnboardingCategoryDocsScreen(),
       binding: OnboardingBinding(),
     ),
     GetPage(

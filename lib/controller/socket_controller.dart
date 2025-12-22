@@ -12,7 +12,21 @@ class SocketController extends GetxController {
   void init(String token) {
     socketService.initSocket(token);
     _setupListeners();
+    // socketService.connect(); // Wait for online toggle? Or default connect?
+    // Usually init connects. Let's keep it connecting for setup and then handle toggle.
+    // Or better, move connect out of init if we want explicit control.
+    // But user code calls init from DashboardController.
+    // Let's defer connection to explicit call or keep it here and let toggle handle it.
+    // I will add the methods first.
     socketService.connect();
+  }
+
+  void connect() {
+    socketService.connect();
+  }
+
+  void disconnect() {
+    socketService.disconnect();
   }
 
   void _setupListeners() {

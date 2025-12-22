@@ -31,14 +31,44 @@ class OnboardingService extends GetxService {
     // In real app, you'd deserialize full JSON
     _mockState = OnboardingState(
       currentStep: step,
+      mobileNumber: _storage.read('mobileNum') ?? '',
       personalInfo: PersonalInfoModel(),
       documents: [
-        DocumentModel(id: '1', title: 'Aadhar Card', requiresBackSide: true),
-        DocumentModel(id: '2', title: 'PAN Card', requiresBackSide: false),
+        DocumentModel(
+          id: '1',
+          title: 'Aadhar Card',
+          requiresBackSide: true,
+          category: DocCategory.personal,
+        ),
+        DocumentModel(
+          id: '2',
+          title: 'PAN Card',
+          requiresBackSide: true,
+          category: DocCategory.personal,
+        ),
         DocumentModel(
           id: '3',
           title: 'Driving License',
           requiresBackSide: true,
+          category: DocCategory.personal,
+        ),
+        DocumentModel(
+          id: '4',
+          title: 'RC Book',
+          requiresBackSide: true,
+          category: DocCategory.vehicle,
+        ),
+        DocumentModel(
+          id: '5',
+          title: 'Vehicle Insurance',
+          requiresBackSide: true,
+          category: DocCategory.vehicle,
+        ),
+        DocumentModel(
+          id: '6',
+          title: 'Bank Passbook Front Page',
+          requiresBackSide: false,
+          category: DocCategory.bank,
         ),
       ],
     );
@@ -55,21 +85,6 @@ class OnboardingService extends GetxService {
   void _saveStep(OnboardingStep step) {
     _mockState.currentStep = step;
     _storage.write('onboarding_step', step.toString());
-  }
-
-  Future<bool> sendOtp(String mobile) async {
-    await Future.delayed(const Duration(seconds: 1));
-    _mockState.mobileNumber = mobile;
-    return true;
-  }
-
-  Future<bool> verifyOtp(String mobile, String otp) async {
-    await Future.delayed(const Duration(seconds: 1));
-    if (otp == "123456") {
-      _saveStep(OnboardingStep.personalInfo);
-      return true;
-    }
-    return false;
   }
 
   Future<bool> submitPersonalInfo(PersonalInfoModel info) async {
@@ -100,6 +115,8 @@ class OnboardingService extends GetxService {
   OnboardingStep getCurrentStep() {
     return _mockState.currentStep;
   }
+
+  String get mobileNumber => _mockState.mobileNumber;
 
   bool areAllDocsUploaded() {
     return _mockState.documents.every(

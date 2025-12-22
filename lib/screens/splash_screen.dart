@@ -31,7 +31,7 @@ class _SplashScreenState extends State<SplashScreen> {
       if (status == 'VERIFIED') {
         Get.offAllNamed(Routes.driverDashboard);
       } else if (status == 'PENDING') {
-        Get.offAllNamed(Routes.onboardingSuccess);
+        Get.offAllNamed(Routes.driverDashboard);
       } else {
         Get.offAllNamed(Routes.onboardingPersonalInfo);
       }

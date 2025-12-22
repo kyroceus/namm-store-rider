@@ -22,7 +22,22 @@ class OnboardingController extends GetxController {
   final dobController = TextEditingController();
   final cityController = TextEditingController();
   final addressController = TextEditingController();
-  final languageController = TextEditingController();
+
+  final whatsAppController = TextEditingController();
+  final secondaryMobileController = TextEditingController();
+  final bloodGroupController = TextEditingController();
+  var profileImagePath = ''.obs;
+
+  var isWhatsAppSameAsMobile = false.obs;
+
+  void toggleWhatsAppSameAsMobile(bool? value) {
+    isWhatsAppSameAsMobile.value = value ?? false;
+    if (isWhatsAppSameAsMobile.value) {
+      whatsAppController.text = mobileController.text;
+    } else {
+      whatsAppController.clear();
+    }
+  }
 
   // Documents
   var documents = <DocumentModel>[].obs;
@@ -33,6 +48,10 @@ class OnboardingController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+
+    // Auto-fill mobile number
+    mobileController.text = _service.mobileNumber;
+
     // Load documents if we are at that stage
     if (_service.getCurrentStep() == OnboardingStep.documents) {
       loadDocuments();
@@ -41,49 +60,56 @@ class OnboardingController extends GetxController {
 
   // --- Actions ---
 
-  Future<void> sendOtp() async {
-    if (mobileController.text.length != 10) {
-      showCustomSnackBar(
-        title: "Error",
-        message: "Invalid Mobile Number",
-        snackBarType: SnackBarType.error,
-      );
-      return;
-    }
-    isLoading.value = true;
-    bool success = await _service.sendOtp(mobileController.text);
-    isLoading.value = false;
-
-    if (success) {
-      Get.toNamed(Routes.onboardingOtp);
-    }
-  }
-
-  Future<void> verifyOtp() async {
-    isLoading.value = true;
-    bool success = await _service.verifyOtp(
-      mobileController.text,
-      otpController.text,
-    );
-    isLoading.value = false;
-
-    if (success) {
-      Get.toNamed(Routes.onboardingPersonalInfo);
-    } else {
-      showCustomSnackBar(
-        title: "Error",
-        message: "Invalid OTP",
-        snackBarType: SnackBarType.error,
-      );
-    }
-  }
-
   Future<void> submitPersonalInfo() async {
     // Basic validation
     if (firstNameController.text.isEmpty) {
       showCustomSnackBar(
         title: "Error",
         message: "Enter First Name",
+        snackBarType: SnackBarType.error,
+      );
+      return;
+    }
+
+    // DOB Validation (18+ years)
+    if (dobController.text.isEmpty) {
+      showCustomSnackBar(
+        title: "Error",
+        message: "Enter Date of Birth",
+        snackBarType: SnackBarType.error,
+      );
+      return;
+    }
+
+    try {
+      // Parse format "d/M/yyyy" as set in screen
+      final parts = dobController.text.split('/');
+      final dob = DateTime(
+        int.parse(parts[2]),
+        int.parse(parts[1]),
+        int.parse(parts[0]),
+      );
+      final now = DateTime.now();
+      final age =
+          now.year -
+          dob.year -
+          ((now.month < dob.month ||
+                  (now.month == dob.month && now.day < dob.day))
+              ? 1
+              : 0);
+
+      if (age < 18) {
+        showCustomSnackBar(
+          title: "Sorry",
+          message: "Go and study",
+          snackBarType: SnackBarType.error,
+        );
+        return;
+      }
+    } catch (e) {
+      showCustomSnackBar(
+        title: "Error",
+        message: "Invalid Date Format",
         snackBarType: SnackBarType.error,
       );
       return;
@@ -97,7 +123,10 @@ class OnboardingController extends GetxController {
       dob: dobController.text,
       city: cityController.text,
       address: addressController.text,
-      language: languageController.text,
+      whatsApp: whatsAppController.text,
+      secondaryMobile: secondaryMobileController.text,
+      bloodGroup: bloodGroupController.text,
+      profileImage: profileImagePath.value,
     );
 
     await _service.submitPersonalInfo(info);
@@ -119,35 +148,70 @@ class OnboardingController extends GetxController {
     // actually we can just pass bool isCamera
   }
 
-  Future<void> pickDocImage(String docId, {bool isCamera = false}) async {
+  Future<void> pickProfileImage() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+    if (image != null) {
+      profileImagePath.value = image.path;
+    }
+  }
+
+  Future<void> pickDocImage(
+    String docId, {
+    bool isCamera = false,
+    bool isBack = false,
+  }) async {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(
       source: isCamera ? ImageSource.camera : ImageSource.gallery,
     );
 
     if (image != null) {
-      await uploadDocument(docId, image.path);
+      await uploadDocument(docId, image.path, isBack: isBack);
     }
   }
 
-  Future<void> uploadDocument(String docId, String path) async {
+  Future<void> uploadDocument(
+    String docId,
+    String path, {
+    bool isBack = false,
+  }) async {
     isLoading.value = true;
 
     // Update local model first to show preview immediately (optimistic UI)
     var doc = documents.firstWhere((e) => e.id == docId);
+
+    // Create new document with updated image path
     doc = DocumentModel(
       id: doc.id,
       title: doc.title,
-      frontImage: path, // Temporarily store local path
+      frontImage: isBack ? doc.frontImage : path,
+      backImage: isBack ? path : doc.backImage,
+      // Status logic: if we have both sides (or only need one), mark uploaded?
+      // For now, let service handle status or keep as uploaded if touched.
+      // We can refine: if (requiresBackSide && (front == null || back == null)) -> pending?
+      // Simple approach: set uploaded if we have this new image.
+      // Ideally validation happens on submit.
       status: DocStatus.uploaded,
       requiresBackSide: doc.requiresBackSide,
+      category: doc.category,
     );
+
     int index = documents.indexWhere((e) => e.id == docId);
     documents[index] = doc;
     documents.refresh();
 
-    await _service.uploadDocument(docId, path);
+    await _service.uploadDocument(docId, path, isBack: isBack);
     isLoading.value = false;
+  }
+
+  bool isCategoryCompleted(DocCategory category) {
+    final categoryDocs = documents.where((doc) => doc.category == category);
+    if (categoryDocs.isEmpty) return false;
+    return categoryDocs.every(
+      (doc) =>
+          doc.status == DocStatus.uploaded || doc.status == DocStatus.approved,
+    );
   }
 
   Future<void> submitAllDocuments() async {

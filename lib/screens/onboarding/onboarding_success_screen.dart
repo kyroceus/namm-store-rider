@@ -104,16 +104,16 @@ class _OnboardingSuccessScreenState extends State<OnboardingSuccessScreen> {
 
   Widget _buildStatusItem(String title, String status, Color color) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 15),
-      padding: const EdgeInsets.symmetric(vertical: 10),
+      padding: const EdgeInsets.symmetric(vertical: 15),
       decoration: BoxDecoration(
         border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(title, style: const TextStyle(fontSize: 16)),
+          const Spacer(),
           Text(status, style: TextStyle(color: color, fontSize: 12)),
+          const SizedBox(width: 10),
           Icon(Icons.chevron_right, color: Colors.grey.shade400),
         ],
       ),
