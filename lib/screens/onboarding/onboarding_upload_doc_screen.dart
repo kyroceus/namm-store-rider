@@ -82,7 +82,7 @@ class OnboardingUploadDocScreen extends GetView<OnboardingController> {
                           (doc.requiresBackSide && doc.backImage == null))
                       ? null // Disable if required images are missing
                       : () {
-                          Get.back(); // Just go back, image is "uploaded" on selection in our logic
+                          controller.submitDocument(docId);
                           // Or call a final confirm method if needed
                         },
                   style: ElevatedButton.styleFrom(

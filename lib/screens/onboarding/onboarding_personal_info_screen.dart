@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:nammastore_rider/controller/onboarding_controller.dart';
@@ -135,85 +134,6 @@ class OnboardingPersonalInfoScreen extends GetView<OnboardingController> {
               maxLines:
                   1, // Keep single line look or expand if needed, image shows single line height but might be multiline
               decoration: _inputDecoration(hint: "Search address"),
-            ),
-            const SizedBox(height: 15),
-
-            _buildLabel("Your Profile Picture"),
-            const SizedBox(height: 10),
-            Center(
-              child: Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: Colors.grey.shade300,
-                    style: BorderStyle.solid,
-                  ), // Image shows dotted but solid is easier, standard dotted border needs custom painter or package. Image actually looks dotted/dashed. Using standard border for now to speed up.
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Row(
-                  children: [
-                    Obx(() {
-                      if (controller.profileImagePath.value.isNotEmpty) {
-                        return CircleAvatar(
-                          radius: 30,
-                          backgroundImage: FileImage(
-                            File(controller.profileImagePath.value),
-                          ),
-                        );
-                      }
-                      return Container(
-                        height: 60,
-                        width: 60,
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Color(0xFFE0E0E0),
-                        ),
-                        child: const Icon(
-                          Icons.person,
-                          size: 40,
-                          color: Colors.grey,
-                        ),
-                      );
-                    }),
-                    const SizedBox(width: 20),
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () => controller.pickProfileImage(),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.red.shade100),
-                            borderRadius: BorderRadius.circular(30),
-                            color: Colors.white,
-                          ),
-                          child: Obx(
-                            () => Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.camera_alt,
-                                  color: Colors.red,
-                                  size: 20,
-                                ),
-                                SizedBox(width: 8),
-                                controller.profileImagePath.value.isEmpty
-                                    ? Text(
-                                        "Upload Photo",
-                                        style: TextStyle(color: Colors.red),
-                                      )
-                                    : Text(
-                                        "Change Photo",
-                                        style: TextStyle(color: Colors.red),
-                                      ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
             ),
             const SizedBox(height: 15),
 

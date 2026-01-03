@@ -14,8 +14,8 @@ enum DocCategory { personal, vehicle, bank, emergency }
 class DocumentModel {
   final String id;
   final String title;
-  final String? frontImage;
-  final String? backImage;
+  String? frontImage;
+  String? backImage;
   DocStatus status;
   final bool requiresBackSide;
   final DocCategory category;
@@ -38,12 +38,8 @@ class PersonalInfoModel {
   String dob;
   String city;
   String address;
-  String language;
-  String profileImage;
   String whatsApp;
-  String secondaryMobile;
   String bloodGroup;
-  String referralCode;
 
   PersonalInfoModel({
     this.firstName = '',
@@ -52,13 +48,22 @@ class PersonalInfoModel {
     this.dob = '',
     this.city = '',
     this.address = '',
-    this.language = '',
-    this.profileImage = '',
     this.whatsApp = '',
-    this.secondaryMobile = '',
     this.bloodGroup = '',
-    this.referralCode = '',
   });
+
+  Map<String, dynamic> toJson() {
+    return {
+      "firstName": firstName,
+      "lastName": lastName,
+      "fatherName": fatherName,
+      "dateOfBirth": dob, // Mapping dob to dateOfBirth as per JSON body
+      "whatsappNumber": whatsApp, // Mapping whatsApp to whatsappNumber
+      "bloodGroup": bloodGroup,
+      "city": city,
+      "address": address,
+    };
+  }
 }
 
 class OnboardingState {

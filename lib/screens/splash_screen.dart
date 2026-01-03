@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:nammastore_rider/controller/auth_controller.dart';
 import 'package:nammastore_rider/routes/app_pages.dart';
 import 'package:nammastore_rider/services/onboarding_service.dart';
+import 'package:nammastore_rider/models/onboarding_model.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -31,9 +32,16 @@ class _SplashScreenState extends State<SplashScreen> {
       if (status == 'VERIFIED') {
         Get.offAllNamed(Routes.driverDashboard);
       } else if (status == 'PENDING') {
-        Get.offAllNamed(Routes.driverDashboard);
+        Get.offAllNamed(Routes.onboardingSuccess);
       } else {
-        Get.offAllNamed(Routes.onboardingPersonalInfo);
+        // INCOMPLETE
+        // Check current step to decide where to go
+        final step = onboarding.getCurrentStep();
+        if (step.index >= OnboardingStep.documents.index) {
+          Get.offAllNamed(Routes.onboardingDocuments);
+        } else {
+          Get.offAllNamed(Routes.onboardingPersonalInfo);
+        }
       }
     } else {
       Get.offAllNamed(Routes.loginScreen);

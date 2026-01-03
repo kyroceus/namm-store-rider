@@ -243,6 +243,64 @@ class HttpService {
     }
   }
 
+  Future<dynamic> uploadFiles({
+    required String path,
+    required Map<String, String> files, // key: fileKey, value: filePath
+    bool auth = false,
+  }) async {
+    final url = Uri.parse('$baseUrl$path');
+    final request = http.MultipartRequest('POST', url);
+
+    if (auth) {
+      final authService = Get.find<AuthService>();
+      final token = authService.authToken;
+      if (token.isNotEmpty) {
+        request.headers['Authorization'] = 'Bearer $token';
+      } else {
+        AppLogger.instance.w('No access token found for auth request');
+        throw Exception('No access token for upload');
+      }
+    }
+
+    for (var entry in files.entries) {
+      request.files.add(
+        await http.MultipartFile.fromPath(entry.key, entry.value),
+      );
+      AppLogger.instance.i(
+        'Adding FILE to upload: key=${entry.key}, path=${entry.value}',
+      );
+    }
+
+    AppLogger.instance.i('UPLOADING FILES to $url');
+
+    try {
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      _logResponse(response);
+
+      final responseBody = jsonDecode(response.body);
+      final data = responseBody['data'];
+      final message = responseBody['message'] as String;
+      final isSuccess = responseBody['success'] as bool;
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        if (isSuccess) {
+          return data;
+        } else {
+          throw Exception(message);
+        }
+      } else if (response.statusCode == 401) {
+        Get.offAllNamed('/login');
+      } else {
+        throw Exception(message);
+      }
+    } catch (e) {
+      AppLogger.instance.e('UPLOAD ERROR: $e');
+      rethrow;
+    }
+  }
+
   void clearCache(String key) {
     storage.remove(key);
     storage.remove('${key}_etag');

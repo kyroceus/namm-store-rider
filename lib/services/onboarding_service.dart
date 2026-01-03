@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:nammastore_rider/models/onboarding_model.dart';
+import 'package:nammastore_rider/services/http_service.dart';
 
 class OnboardingService extends GetxService {
   final _storage = GetStorage();
@@ -43,7 +44,7 @@ class OnboardingService extends GetxService {
         DocumentModel(
           id: '2',
           title: 'PAN Card',
-          requiresBackSide: true,
+          requiresBackSide: false,
           category: DocCategory.personal,
         ),
         DocumentModel(
@@ -61,7 +62,7 @@ class OnboardingService extends GetxService {
         DocumentModel(
           id: '5',
           title: 'Vehicle Insurance',
-          requiresBackSide: true,
+          requiresBackSide: false,
           category: DocCategory.vehicle,
         ),
         DocumentModel(
@@ -88,10 +89,26 @@ class OnboardingService extends GetxService {
   }
 
   Future<bool> submitPersonalInfo(PersonalInfoModel info) async {
-    await Future.delayed(const Duration(seconds: 1));
-    _mockState.personalInfo = info;
-    _saveStep(OnboardingStep.documents);
-    return true;
+    try {
+      await HttpService.instance.request(
+        path: '/v1/rider/profile',
+        method: 'POST',
+        body: info.toJson(),
+        auth: true,
+      );
+      _mockState.personalInfo = info;
+      _saveStep(OnboardingStep.documents);
+      return true;
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        e.toString(),
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Get.theme.colorScheme.error,
+        colorText: Get.theme.colorScheme.onError,
+      );
+      return false;
+    }
   }
 
   Future<List<DocumentModel>> getDocuments() async {
@@ -100,16 +117,74 @@ class OnboardingService extends GetxService {
   }
 
   Future<bool> uploadDocument(
-    String docId,
-    String path, {
-    bool isBack = false,
+    String docId, {
+    String? frontPath,
+    String? backPath,
   }) async {
-    await Future.delayed(const Duration(seconds: 1));
     final doc = _mockState.documents.firstWhere(
       (element) => element.id == docId,
     );
-    doc.status = DocStatus.uploaded;
-    return true;
+
+    String endpoint = '';
+
+    // Map document title to endpoint
+    switch (doc.title) {
+      case 'Aadhar Card':
+        endpoint = '/v1/rider/upload/aadhar';
+        break;
+      case 'Driving License':
+        endpoint = '/v1/rider/upload/driving-license';
+        break;
+      case 'PAN Card':
+        endpoint = '/v1/rider/upload/pan';
+        break;
+      case 'RC Book':
+        endpoint = '/v1/rider/upload/vehicle-rc';
+        break;
+      case 'Vehicle Insurance':
+        endpoint = '/v1/rider/upload/vehicle-insurance';
+        break;
+      case 'Bank Passbook Front Page':
+        endpoint = '/v1/rider/upload/passbook';
+        break;
+      default:
+        Get.snackbar("Error", "Unknown document type");
+        return false;
+    }
+
+    try {
+      final Map<String, String> files = {};
+      if (frontPath != null && frontPath.isNotEmpty) {
+        files['front'] = frontPath;
+      }
+      if (backPath != null && backPath.isNotEmpty) {
+        files['back'] = backPath;
+      }
+
+      if (files.isEmpty) {
+        Get.snackbar("Error", "No images selected to upload");
+        return false;
+      }
+
+      await HttpService.instance.uploadFiles(
+        path: endpoint,
+        files: files,
+        auth: true,
+      );
+
+      doc.status = DocStatus.uploaded;
+      // Ideally update model with paths if server returns them, but for now we trust local
+      return true;
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        e.toString(),
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Get.theme.colorScheme.error,
+        colorText: Get.theme.colorScheme.onError,
+      );
+      return false;
+    }
   }
 
   OnboardingStep getCurrentStep() {
@@ -130,23 +205,107 @@ class OnboardingService extends GetxService {
     _saveStep(OnboardingStep.verificationPending);
   }
 
+  Future<void> fetchUserProfile() async {
+    try {
+      final response = await HttpService.instance.request(
+        path: '/v1/rider',
+        method: 'GET',
+        auth: true,
+      );
+
+      if (response != null && response is Map<String, dynamic>) {
+        // Sync Verification Status
+        // The user mentioned 'emailVerified' acts as account verification status
+        final emailVerified = response['emailVerified'] == true;
+        isVerified.value = emailVerified;
+        _storage.write('is_verified', emailVerified);
+
+        // Sync Document Status
+        for (var doc in _mockState.documents) {
+          String? frontUrl;
+          String? backUrl;
+
+          switch (doc.title) {
+            case 'Aadhar Card':
+              frontUrl = response['aadharCardFront'];
+              backUrl = response['aadharCardBack'];
+              break;
+            case 'PAN Card':
+              frontUrl = response['panCard'];
+              break;
+            case 'Driving License':
+              frontUrl = response['drivingLicenseFront'];
+              backUrl = response['drivingLicenseBack'];
+              break;
+            case 'RC Book':
+              frontUrl = response['vehicleRcBookFront'];
+              backUrl = response['vehicleRcBookBack'];
+              break;
+            case 'Vehicle Insurance':
+              frontUrl = response['vehicleInsurance'];
+              break;
+            case 'Bank Passbook Front Page':
+              frontUrl = response['bankPassbook'];
+              break;
+          }
+
+          bool isUploaded = false;
+          // Logic: If required fields are present in response, mark as uploaded
+          if (doc.requiresBackSide) {
+            if (frontUrl != null && backUrl != null) {
+              isUploaded = true;
+            }
+          } else {
+            if (frontUrl != null) {
+              isUploaded = true;
+            }
+          }
+
+          if (isUploaded) {
+            doc.status = DocStatus.uploaded;
+            doc.frontImage = frontUrl;
+            doc.backImage = backUrl;
+          }
+        }
+        if (response['firstName'] != null &&
+            _mockState.currentStep == OnboardingStep.phone) {
+          // If we have personal info but local step is phone, advance to documents
+          _mockState.currentStep = OnboardingStep
+              .documents; // Don't save to storage yet or do valid save
+          _saveStep(OnboardingStep.documents);
+        }
+
+        // _mockState.documents.refresh(); // Removed: Not an RxList
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to sync profile: ${e.toString()}',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Get.theme.colorScheme.error,
+        colorText: Get.theme.colorScheme.onError,
+      );
+    }
+  }
+
   Future<String> getDriverStatus() async {
-    await Future.delayed(const Duration(milliseconds: 500));
+    // Attempt to sync first
+    await fetchUserProfile();
 
     if (isVerified.value) return 'VERIFIED';
 
-    // Check memory state
-    if (_mockState.currentStep == OnboardingStep.verificationPending)
-      return 'PENDING';
-    if (_mockState.currentStep == OnboardingStep.complete ||
-        _mockState.currentStep == OnboardingStep.verificationPending)
-      return 'PENDING';
-
-    // Explicit check for demo: if stored step is pending
-    if (_storage.read('onboarding_step') ==
-        OnboardingStep.verificationPending.toString()) {
+    // If all documents are uploaded, we are in pending verification state
+    if (areAllDocsUploaded()) {
+      if (_mockState.currentStep != OnboardingStep.verificationPending) {
+        _saveStep(OnboardingStep.verificationPending);
+      }
       return 'PENDING';
     }
+
+    // Check memory state fallback
+    if (_mockState.currentStep == OnboardingStep.verificationPending)
+      return 'PENDING';
+    if (_mockState.currentStep == OnboardingStep.complete) return 'PENDING';
 
     return 'INCOMPLETE';
   }

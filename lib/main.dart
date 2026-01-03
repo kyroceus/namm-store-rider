@@ -12,9 +12,7 @@ import 'package:nammastore_rider/services/auth_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await GetStorage.init();
-  HttpService.init(
-    baseUrl: "https://namma-store-backend-staging.onrender.com/api",
-  );
+  HttpService.init(baseUrl: "http://192.168.1.40:8080/api");
   Get.put(AuthService());
   Get.put(AuthController(authService: Get.find<AuthService>()));
   Get.lazyPut(() => OtpController(), fenix: true);

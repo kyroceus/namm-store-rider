@@ -22,10 +22,20 @@ class _OnboardingSuccessScreenState extends State<OnboardingSuccessScreen> {
   }
 
   void _checkStatus() async {
-    // Simulate periodic check or just one-time check on verification
+    // Sync with backend before checking status
     final status = await _service.getDriverStatus();
     if (status == 'VERIFIED') {
       Get.offAllNamed(Routes.driverDashboard);
+    } else {
+      // If not verified, just stay here.
+      // Maybe show a snackbar saying "Still syncing..." or just silently update?
+      // For user feedback, let's show a toast if triggered manually.
+      // But since this is called on init, silent is better.
+      // However, if called from button, we might want feedback.
+      // For now, let's keep logic simple.
+      setState(
+        () {},
+      ); // Rebuild UI if needed to reflect any local state changes (though state is mostly static text here)
     }
   }
 

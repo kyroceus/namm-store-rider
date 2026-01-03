@@ -24,9 +24,7 @@ class OnboardingController extends GetxController {
   final addressController = TextEditingController();
 
   final whatsAppController = TextEditingController();
-  final secondaryMobileController = TextEditingController();
   final bloodGroupController = TextEditingController();
-  var profileImagePath = ''.obs;
 
   var isWhatsAppSameAsMobile = false.obs;
 
@@ -124,9 +122,7 @@ class OnboardingController extends GetxController {
       city: cityController.text,
       address: addressController.text,
       whatsApp: whatsAppController.text,
-      secondaryMobile: secondaryMobileController.text,
       bloodGroup: bloodGroupController.text,
-      profileImage: profileImagePath.value,
     );
 
     await _service.submitPersonalInfo(info);
@@ -138,6 +134,7 @@ class OnboardingController extends GetxController {
 
   Future<void> loadDocuments() async {
     isLoading.value = true;
+    await _service.fetchUserProfile(); // Sync from server
     documents.value = await _service.getDocuments();
     isLoading.value = false;
   }
@@ -146,14 +143,6 @@ class OnboardingController extends GetxController {
     // Note: source should be ImageSource.camera or gallery.
     // Using dynamic to avoid import in header if not needed, but better to import image_picker.
     // actually we can just pass bool isCamera
-  }
-
-  Future<void> pickProfileImage() async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-    if (image != null) {
-      profileImagePath.value = image.path;
-    }
   }
 
   Future<void> pickDocImage(
@@ -167,41 +156,69 @@ class OnboardingController extends GetxController {
     );
 
     if (image != null) {
-      await uploadDocument(docId, image.path, isBack: isBack);
+      // Update local state ONLY
+      var doc = documents.firstWhere((e) => e.id == docId);
+
+      doc = DocumentModel(
+        id: doc.id,
+        title: doc.title,
+        frontImage: isBack ? doc.frontImage : image.path,
+        backImage: isBack ? image.path : doc.backImage,
+        status: doc.status, // Keep existing status until actual submit
+        requiresBackSide: doc.requiresBackSide,
+        category: doc.category,
+      );
+
+      int index = documents.indexWhere((e) => e.id == docId);
+      documents[index] = doc;
+      documents.refresh();
     }
   }
 
-  Future<void> uploadDocument(
-    String docId,
-    String path, {
-    bool isBack = false,
-  }) async {
+  Future<void> submitDocument(String docId) async {
     isLoading.value = true;
+    final doc = documents.firstWhere((e) => e.id == docId);
 
-    // Update local model first to show preview immediately (optimistic UI)
-    var doc = documents.firstWhere((e) => e.id == docId);
+    // Basic Validation
+    if (doc.frontImage == null ||
+        (doc.requiresBackSide && doc.backImage == null)) {
+      showCustomSnackBar(
+        title: "Error",
+        message: "Please select images first",
+        snackBarType: SnackBarType.error,
+      );
+      isLoading.value = false;
+      return;
+    }
 
-    // Create new document with updated image path
-    doc = DocumentModel(
-      id: doc.id,
-      title: doc.title,
-      frontImage: isBack ? doc.frontImage : path,
-      backImage: isBack ? path : doc.backImage,
-      // Status logic: if we have both sides (or only need one), mark uploaded?
-      // For now, let service handle status or keep as uploaded if touched.
-      // We can refine: if (requiresBackSide && (front == null || back == null)) -> pending?
-      // Simple approach: set uploaded if we have this new image.
-      // Ideally validation happens on submit.
-      status: DocStatus.uploaded,
-      requiresBackSide: doc.requiresBackSide,
-      category: doc.category,
+    final success = await _service.uploadDocument(
+      docId,
+      frontPath: doc.frontImage,
+      backPath: doc.backImage,
     );
 
-    int index = documents.indexWhere((e) => e.id == docId);
-    documents[index] = doc;
-    documents.refresh();
+    if (success) {
+      // Update status on success
+      var updatedDoc = DocumentModel(
+        id: doc.id,
+        title: doc.title,
+        frontImage: doc.frontImage,
+        backImage: doc.backImage,
+        status: DocStatus.uploaded,
+        requiresBackSide: doc.requiresBackSide,
+        category: doc.category,
+      );
+      int index = documents.indexWhere((e) => e.id == docId);
+      documents[index] = updatedDoc;
+      documents.refresh();
 
-    await _service.uploadDocument(docId, path, isBack: isBack);
+      Get.back(); // Go back to list
+      showCustomSnackBar(
+        title: "Success",
+        message: "${doc.title} uploaded successfully",
+        snackBarType: SnackBarType.success,
+      );
+    }
     isLoading.value = false;
   }
 

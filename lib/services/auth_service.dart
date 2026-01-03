@@ -34,7 +34,7 @@ class AuthService extends GetxService {
       showLoadingDialog();
 
       await HttpService.instance.request(
-        path: '/v1/user/login',
+        path: '/v1/rider/login',
         body: {"mobileNumber": mobileNum},
         method: 'POST',
       );
@@ -71,7 +71,7 @@ class AuthService extends GetxService {
       showLoadingDialog(); // ⏳ Show loading
 
       final data = await HttpService.instance.request(
-        path: '/v1/user/verify',
+        path: '/v1/rider/verify',
         body: {"mobileNumber": mobileNum, "otp": otp},
         method: 'POST',
       );
@@ -102,7 +102,7 @@ class AuthService extends GetxService {
   Future<void> sendOtpForDeletion() async {
     try {
       await HttpService.instance.request(
-        path: '/v1/user/initiate-delete',
+        path: '/v1/rider/initiate-delete',
         auth: true,
         method: 'POST',
       );
@@ -123,7 +123,7 @@ class AuthService extends GetxService {
   Future<void> verifyOtpAndRequestDelete(String otp) async {
     try {
       await HttpService.instance.request(
-        path: '/v1//user/delete',
+        path: '/v1/rider/delete',
         body: {'otp': otp},
         auth: true,
         method: 'POST',
