@@ -4,7 +4,7 @@ import 'package:nammastore_rider/controller/socket_controller.dart';
 class DriverDashboardController extends GetxController {
   final SocketController socketController = Get.find<SocketController>();
 
-  var isOnline = false.obs;
+  var isOnline = true.obs;
   var selectedDate = DateTime.now().obs;
   var currentBottomNavIndex = 0.obs;
 

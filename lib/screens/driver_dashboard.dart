@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:nammastore_rider/controller/driver_dashboard_controller.dart';
 import 'package:nammastore_rider/screens/driver_account_screen.dart';
 
@@ -89,8 +90,8 @@ class DriverDashboard extends GetView<DriverDashboardController> {
                   const SizedBox(width: 8),
                   Text(
                     label,
-                    style: TextStyle(
-                      color: const Color(0xFFFF5252),
+                    style: const TextStyle(
+                      color: Color(0xFFFF5252),
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),
@@ -262,7 +263,6 @@ class DriverDashboard extends GetView<DriverDashboardController> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Placeholder Illustration
                       Container(
                         height: 200,
                         width: 200,
@@ -300,6 +300,14 @@ class DriverDashboard extends GetView<DriverDashboardController> {
                 itemCount: controller.socketController.orders.length,
                 itemBuilder: (ctx, i) {
                   final order = controller.socketController.orders[i];
+
+                  String formattedDate = DateFormat('d/M/y \'at\' h:mm a')
+                      .format(
+                        DateTime.parse(
+                          order['dateCreated'] ?? DateTime.now().toString(),
+                        ).toLocal(),
+                      );
+
                   return Card(
                     elevation: 2,
                     shape: RoundedRectangleBorder(
@@ -311,14 +319,18 @@ class DriverDashboard extends GetView<DriverDashboardController> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          // Header: Order Number and Status
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                order['restaurant'] ?? 'Unknown Restaurant',
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
+                              Expanded(
+                                child: Text(
+                                  "#${order['number'] ?? 'Unknown'}",
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                               Container(
@@ -330,39 +342,58 @@ class DriverDashboard extends GetView<DriverDashboardController> {
                                   color: Colors.green.shade50,
                                   borderRadius: BorderRadius.circular(5),
                                 ),
-                                child: const Text(
-                                  "New",
+                                child: Text(
+                                  order['status'] ?? "NEW",
                                   style: TextStyle(
-                                    color: Colors.green,
-                                    fontSize: 10,
+                                    color: Colors.green.shade700,
+                                    fontSize: 11,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
                               ),
                             ],
                           ),
-                          const SizedBox(height: 5),
-                          Text(
-                            order['address'] ?? 'Unknown Address',
-                            style: TextStyle(
-                              color: Colors.grey.shade600,
-                              fontSize: 13,
-                            ),
+
+                          const Divider(height: 25),
+
+                          // Details: Time and Type
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.access_time,
+                                size: 16,
+                                color: Colors.grey[600],
+                              ),
+                              const SizedBox(width: 5),
+                              Text(
+                                "$formattedDate • ${order['minsEstimated']} mins est.",
+                                style: TextStyle(
+                                  color: Colors.grey.shade700,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(height: 15),
+                          const SizedBox(height: 8),
+
+                          // Action Button
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton(
                               onPressed: () {
+                                // Passing the specific UUID from your data
                                 controller.pickOrder(order['id']);
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFFFF5252),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 12,
+                                ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                               ),
-                              child: const Text("Accept Order"),
+                              child: const Text("Accept Delivery"),
                             ),
                           ),
                         ],
