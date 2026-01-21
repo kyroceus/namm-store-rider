@@ -120,6 +120,7 @@ class OnboardingService extends GetxService {
     String docId, {
     String? frontPath,
     String? backPath,
+    String? image,
   }) async {
     final doc = _mockState.documents.firstWhere(
       (element) => element.id == docId,
@@ -159,6 +160,9 @@ class OnboardingService extends GetxService {
       }
       if (backPath != null && backPath.isNotEmpty) {
         files['back'] = backPath;
+      }
+      if (image != null && image.isNotEmpty) {
+        files['image'] = image;
       }
 
       if (files.isEmpty) {

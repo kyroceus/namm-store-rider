@@ -193,8 +193,9 @@ class OnboardingController extends GetxController {
 
     final success = await _service.uploadDocument(
       docId,
-      frontPath: doc.frontImage,
-      backPath: doc.backImage,
+      frontPath: doc.requiresBackSide ? doc.frontImage : null,
+      backPath: doc.requiresBackSide ? doc.backImage : null,
+      image: doc.requiresBackSide ? null : doc.frontImage,
     );
 
     if (success) {
