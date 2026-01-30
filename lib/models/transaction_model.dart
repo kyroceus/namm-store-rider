@@ -28,9 +28,7 @@ class TransactionModel {
       type: json['type'],
       status: json['status'],
       entryType: json['entryType'],
-      createdAt: json['createdAt'] != null
-          ? DateTime.tryParse(json['createdAt'])
-          : null,
+      createdAt: DateTime.tryParse(json['createdAt']),
     );
   }
 }
