@@ -5,7 +5,7 @@ import 'package:nammastore_rider/models/onboarding_model.dart';
 import 'package:nammastore_rider/routes/app_pages.dart';
 
 class OnboardingCategoryDocsScreen extends GetView<OnboardingController> {
-  const OnboardingCategoryDocsScreen({Key? key}) : super(key: key);
+  const OnboardingCategoryDocsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

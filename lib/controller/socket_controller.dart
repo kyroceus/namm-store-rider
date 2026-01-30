@@ -31,13 +31,13 @@ class SocketController extends GetxController {
 
   void _setupListeners() {
     socketService.onConnect((_) {
-      print('Connected to Socket');
+      debugPrint('Connected to Socket');
       isConnected.value = true;
       socketService.emitWithAck(
         'delivery:initial',
         {},
         ack: (response) {
-          print(response);
+          debugPrint(response.toString());
           if (response['success'] == true) {
             orders.assignAll(response['data']);
           }
@@ -46,7 +46,7 @@ class SocketController extends GetxController {
     });
 
     socketService.onDisconnect((_) {
-      print('Disconnected');
+      debugPrint('Disconnected');
       isConnected.value = false;
     });
 

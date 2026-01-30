@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:nammastore_rider/controller/onboarding_controller.dart';
 
 class OnboardingPersonalInfoScreen extends GetView<OnboardingController> {
-  const OnboardingPersonalInfoScreen({Key? key}) : super(key: key);
+  const OnboardingPersonalInfoScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -203,7 +203,9 @@ class OnboardingPersonalInfoScreen extends GetView<OnboardingController> {
           ButtonTheme(
             alignedDropdown: true,
             child: DropdownButtonFormField<String>(
-              value: items.contains(controller.text) ? controller.text : null,
+              initialValue: items.contains(controller.text)
+                  ? controller.text
+                  : null,
               items: items
                   .map(
                     (e) => DropdownMenuItem(

@@ -5,7 +5,7 @@ import 'package:nammastore_rider/models/onboarding_model.dart';
 import 'package:nammastore_rider/routes/app_pages.dart';
 
 class OnboardingDocumentListScreen extends GetView<OnboardingController> {
-  const OnboardingDocumentListScreen({Key? key}) : super(key: key);
+  const OnboardingDocumentListScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -208,7 +208,7 @@ class OnboardingDocumentListScreen extends GetView<OnboardingController> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 5,
             offset: const Offset(0, 2),
           ),
@@ -235,7 +235,7 @@ class OnboardingDocumentListScreen extends GetView<OnboardingController> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 5,
             offset: const Offset(0, 2),
           ),

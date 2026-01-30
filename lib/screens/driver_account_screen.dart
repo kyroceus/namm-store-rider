@@ -4,7 +4,7 @@ import 'package:nammastore_rider/controller/driver_dashboard_controller.dart';
 import 'package:nammastore_rider/routes/app_pages.dart';
 
 class DriverAccountScreen extends GetView<DriverDashboardController> {
-  const DriverAccountScreen({Key? key}) : super(key: key);
+  const DriverAccountScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +47,7 @@ class DriverAccountScreen extends GetView<DriverDashboardController> {
                         border: Border.all(color: Colors.grey.shade100),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.grey.withOpacity(0.1),
+                            color: Colors.grey.withValues(alpha: 0.1),
                             blurRadius: 10,
                             offset: const Offset(0, 5),
                           ),
@@ -260,7 +260,7 @@ class DriverAccountScreen extends GetView<DriverDashboardController> {
         borderRadius: BorderRadius.circular(15),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 5,
             offset: const Offset(0, 2),
           ),

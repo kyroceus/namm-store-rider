@@ -6,7 +6,7 @@ import 'package:nammastore_rider/services/onboarding_service.dart';
 import 'package:nammastore_rider/models/onboarding_model.dart';
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({Key? key}) : super(key: key);
+  const SplashScreen({super.key});
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();

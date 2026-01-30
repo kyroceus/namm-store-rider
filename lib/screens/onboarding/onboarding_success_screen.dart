@@ -5,7 +5,7 @@ import 'package:nammastore_rider/routes/app_pages.dart';
 import 'package:nammastore_rider/services/onboarding_service.dart';
 
 class OnboardingSuccessScreen extends StatefulWidget {
-  const OnboardingSuccessScreen({Key? key}) : super(key: key);
+  const OnboardingSuccessScreen({super.key});
 
   @override
   State<OnboardingSuccessScreen> createState() =>

@@ -307,9 +307,12 @@ class OnboardingService extends GetxService {
     }
 
     // Check memory state fallback
-    if (_mockState.currentStep == OnboardingStep.verificationPending)
+    if (_mockState.currentStep == OnboardingStep.verificationPending) {
       return 'PENDING';
-    if (_mockState.currentStep == OnboardingStep.complete) return 'PENDING';
+    }
+    if (_mockState.currentStep == OnboardingStep.complete) {
+      return 'PENDING';
+    }
 
     return 'INCOMPLETE';
   }

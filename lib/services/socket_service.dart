@@ -1,17 +1,17 @@
 import 'package:get/get.dart';
-import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:socket_io_client/socket_io_client.dart' as io;
 
 class SocketService extends GetxService {
-  late IO.Socket socket;
+  late io.Socket socket;
 
   void initSocket(String token) {
     // RECONNECTION & AUTH CONFIGURATION
     // Replace 'http://YOUR_LOCAL_IP:3000' with your actual server URL
     // For Android emulator use 'http://10.0.2.2:3000'
     // For iOS simulator use 'http://localhost:3000' or your machine's IP
-    socket = IO.io(
-      'http://192.168.1.36:8080/v1/delivery',
-      IO.OptionBuilder()
+    socket = io.io(
+      'http://192.168.1.33:8080/v1/delivery',
+      io.OptionBuilder()
           .setTransports(['websocket']) // for Flutter or Web
           .disableAutoConnect() // We connect manually
           .setAuth({'token': token}) // AUTH: Send JWT here
