@@ -3,6 +3,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:nammastore_rider/services/auth_service.dart';
 import 'package:nammastore_rider/services/logger_service.dart';
 import 'package:nammastore_rider/widgets/custom_snackbar.dart';
+import 'package:nammastore_rider/models/rider_model.dart';
 import 'dart:async';
 
 class AuthController extends GetxController {
@@ -13,6 +14,8 @@ class AuthController extends GetxController {
   var isLoggedIn = false.obs; // ✅ Login state tracker
   bool get isGuest => !isLoggedIn.value;
   bool hasShownSheet = false;
+
+  final user = Rxn<RiderModel>();
 
   final AuthService authService;
   final GetStorage storage = GetStorage();
@@ -28,6 +31,14 @@ class AuthController extends GetxController {
     token.value = storage.read('token') ?? '';
     mobileNum.value = storage.read('mobileNum') ?? '';
     isLoggedIn.value = token.isNotEmpty; // ✅ Auto-detect login on init
+    if (isLoggedIn.value) {
+      fetchUserProfile();
+    }
+  }
+
+  Future<void> fetchUserProfile() async {
+    final profile = await authService.fetchRiderProfile();
+    user.value = profile;
   }
 
   Future<bool> loginWithMobileNumber(String mobileNum) async {

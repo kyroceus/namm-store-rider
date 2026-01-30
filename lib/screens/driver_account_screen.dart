@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:nammastore_rider/controller/auth_controller.dart';
 import 'package:nammastore_rider/controller/driver_dashboard_controller.dart';
 import 'package:nammastore_rider/routes/app_pages.dart';
 
@@ -166,6 +167,8 @@ class DriverAccountScreen extends GetView<DriverDashboardController> {
                 ),
               ),
 
+              // --- Wallet Card ---
+              _buildWalletCard(),
               const SizedBox(height: 20),
 
               // --- Options List ---
@@ -183,6 +186,18 @@ class DriverAccountScreen extends GetView<DriverDashboardController> {
                       ),
                     ),
                     const SizedBox(height: 15),
+                    _buildOptionTile(
+                      "Delivery History",
+                      Icons.history,
+                      Colors.pink,
+                      () => Get.toNamed(Routes.deliveryHistory),
+                    ),
+                    _buildOptionTile(
+                      "Transaction History",
+                      Icons.account_balance_wallet_outlined,
+                      Colors.pink,
+                      () => Get.toNamed(Routes.transactionHistory),
+                    ),
                     _buildOptionTile(
                       "Edit Profile",
                       Icons.person_outline,
@@ -233,7 +248,7 @@ class DriverAccountScreen extends GetView<DriverDashboardController> {
                     ),
                     const SizedBox(height: 10),
                     _buildOptionTile("Log Out", Icons.logout, Colors.pink, () {
-                      // Logout logic
+                      Get.find<AuthController>().logout();
                       Get.offAllNamed(Routes.loginScreen);
                     }),
                     const SizedBox(height: 100), // Space for bottom nav
@@ -288,5 +303,110 @@ class DriverAccountScreen extends GetView<DriverDashboardController> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
       ),
     );
+  }
+
+  Widget _buildWalletCard() {
+    return Obx(() {
+      final user = controller.authController.user.value;
+      final walletBalance = user?.walletBalance ?? "0";
+      final cashOnHand = user?.cashOnHand ?? "0";
+
+      return Container(
+        margin: const EdgeInsets.symmetric(horizontal: 20),
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFFFF5252), Color(0xFFFF8A80)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFFFF5252).withOpacity(0.3),
+              blurRadius: 15,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  "My Wallet",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.account_balance_wallet,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 15),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Balance",
+                      style: TextStyle(color: Colors.white70, fontSize: 14),
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      "₹$walletBalance",
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                Container(
+                  width: 1,
+                  height: 40,
+                  color: Colors.white.withOpacity(0.3),
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    const Text(
+                      "Cash on Hand",
+                      style: TextStyle(color: Colors.white70, fontSize: 14),
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      "₹$cashOnHand",
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    });
   }
 }

@@ -11,6 +11,8 @@ import 'package:nammastore_rider/screens/onboarding/onboarding_personal_info_scr
 import 'package:nammastore_rider/screens/onboarding/onboarding_success_screen.dart';
 import 'package:nammastore_rider/screens/onboarding/onboarding_upload_doc_screen.dart';
 import 'package:nammastore_rider/screens/splash_screen.dart';
+import 'package:nammastore_rider/screens/delivery_history_screen.dart';
+import 'package:nammastore_rider/screens/transaction_history_screen.dart';
 
 part 'app_routes.dart';
 
@@ -56,5 +58,13 @@ class AppPages {
       binding: OnboardingBinding(),
     ),
     GetPage(name: Routes.splashScreen, page: () => const SplashScreen()),
+    GetPage(
+      name: Routes.deliveryHistory,
+      page: () => const DeliveryHistoryScreen(),
+    ),
+    GetPage(
+      name: Routes.transactionHistory,
+      page: () => const TransactionHistoryScreen(),
+    ),
   ];
 }

@@ -17,4 +17,6 @@ class Routes {
   static const onboardingSuccess = '/onboarding-success';
 
   static const splashScreen = '/splash-screen';
+  static const deliveryHistory = '/delivery-history';
+  static const transactionHistory = '/transaction-history';
 }

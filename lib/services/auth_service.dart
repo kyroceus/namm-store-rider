@@ -1,7 +1,9 @@
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:nammastore_rider/controller/auth_controller.dart';
+import 'package:nammastore_rider/models/rider_model.dart';
 import 'package:nammastore_rider/services/http_service.dart';
+import 'package:nammastore_rider/services/logger_service.dart';
 
 import 'package:nammastore_rider/utils/loading_dialogue.dart';
 import 'package:nammastore_rider/widgets/custom_snackbar.dart';
@@ -117,6 +119,23 @@ class AuthService extends GetxService {
         message: e.toString(),
         snackBarType: SnackBarType.error,
       );
+    }
+  }
+
+  Future<RiderModel?> fetchRiderProfile() async {
+    try {
+      final response = await HttpService.instance.request(
+        path: '/v1/rider',
+        method: 'GET',
+        auth: true,
+      );
+      if (response != null) {
+        return RiderModel.fromJson(response);
+      }
+      return null;
+    } catch (e) {
+      AppLogger.instance.e('Error fetching rider profile: $e');
+      return null;
     }
   }
 

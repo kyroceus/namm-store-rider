@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:nammastore_rider/controller/auth_controller.dart';
 import 'package:nammastore_rider/services/socket_service.dart';
 
 class SocketController extends GetxController {
@@ -87,7 +88,11 @@ class SocketController extends GetxController {
     // Emit with Ack (callback) to handle success/failure
     socketService.emitWithAck(
       'delivery:accept',
-      jsonEncode({'deliveryId': orderId}),
+      jsonEncode({
+        'deliveryId': orderId,
+        'riderId': Get.find<AuthController>().user.value?.id,
+      }),
+
       ack: (response) {
         if (response['success'] == true) {
           // Optimistically remove from local list

@@ -10,7 +10,7 @@ class SocketService extends GetxService {
     // For Android emulator use 'http://10.0.2.2:3000'
     // For iOS simulator use 'http://localhost:3000' or your machine's IP
     socket = io.io(
-      'http://192.168.1.33:8080/v1/delivery',
+      'http://192.168.1.34:8080/v1/delivery',
       io.OptionBuilder()
           .setTransports(['websocket']) // for Flutter or Web
           .disableAutoConnect() // We connect manually

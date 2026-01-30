@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:nammastore_rider/controller/driver_dashboard_controller.dart';
+
 import 'package:nammastore_rider/screens/driver_account_screen.dart';
+import 'package:nammastore_rider/screens/delivery_details_screen.dart';
 
 class DriverDashboard extends GetView<DriverDashboardController> {
   const DriverDashboard({super.key});
@@ -20,6 +22,98 @@ class DriverDashboard extends GetView<DriverDashboardController> {
             } else {
               return const DriverAccountScreen();
             }
+          }),
+
+          // Active Order Floating Widget
+          Obx(() {
+            final activeOrder = controller.orderController.activeOrder.value;
+            if (activeOrder == null) return const SizedBox.shrink();
+
+            return Positioned(
+              left: 20,
+              right: 20,
+              bottom: 110, // Above bottom nav
+              child: GestureDetector(
+                onTap: () {
+                  Get.to(() => const DeliveryDetailsScreen());
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(15),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.1),
+                        blurRadius: 15,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
+                    border: Border.all(
+                      color: const Color(0xFFFF5252).withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFF5252).withValues(alpha: 0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.delivery_dining,
+                          color: Color(0xFFFF5252),
+                        ),
+                      ),
+                      const SizedBox(width: 15),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Active Order #${activeOrder.id?.substring(0, 8) ?? '...'}",
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                            if (activeOrder.order?.address?.name != null)
+                              Text(
+                                "To: ${activeOrder.order!.address!.name}",
+                                style: TextStyle(
+                                  color: Colors.grey.shade600,
+                                  fontSize: 14,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 5,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFF5252),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: const Text(
+                          "View",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
           }),
 
           // Custom Floating Bottom Navigation
@@ -290,117 +384,124 @@ class DriverDashboard extends GetView<DriverDashboardController> {
                 );
               }
 
-              return ListView.builder(
+              return ListView(
                 padding: const EdgeInsets.only(
                   left: 20,
                   right: 20,
                   top: 20,
                   bottom: 100, // Space for nav bar
                 ),
-                itemCount: controller.socketController.orders.length,
-                itemBuilder: (ctx, i) {
-                  final order = controller.socketController.orders[i];
-
-                  String formattedDate = DateFormat('d/M/y \'at\' h:mm a')
-                      .format(
-                        DateTime.parse(
-                          order['dateCreated'] ?? DateTime.now().toString(),
-                        ).toLocal(),
-                      );
-
-                  return Card(
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    margin: const EdgeInsets.only(bottom: 15),
-                    child: Padding(
-                      padding: const EdgeInsets.all(15.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Header: Order Number and Status
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  "#${order['number'] ?? 'Unknown'}",
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.green.shade50,
-                                  borderRadius: BorderRadius.circular(5),
-                                ),
-                                child: Text(
-                                  order['status'] ?? "NEW",
-                                  style: TextStyle(
-                                    color: Colors.green.shade700,
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-
-                          const Divider(height: 25),
-
-                          // Details: Time and Type
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.access_time,
-                                size: 16,
-                                color: Colors.grey[600],
-                              ),
-                              const SizedBox(width: 5),
-                              Text(
-                                "$formattedDate • ${order['minsEstimated']} mins est.",
-                                style: TextStyle(
-                                  color: Colors.grey.shade700,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-
-                          // Action Button
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              onPressed: () {
-                                // Passing the specific UUID from your data
-                                controller.pickOrder(order['id']);
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFFFF5252),
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 12,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
-                              child: const Text("Accept Delivery"),
-                            ),
-                          ),
-                        ],
+                children: [
+                  // -- Orders List --
+                  ...controller.socketController.orders.map((order) {
+                    String formattedDate = DateFormat('d/M/y \'at\' h:mm a')
+                        .format(
+                          DateTime.parse(
+                            order['dateCreated'] ?? DateTime.now().toString(),
+                          ).toLocal(),
+                        );
+                    // ... rest of the card logic ...
+                    return Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
                       ),
-                    ),
-                  );
-                },
+                      margin: const EdgeInsets.only(bottom: 15),
+                      child: Padding(
+                        padding: const EdgeInsets.all(15.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Header: Order Number and Status
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    "#${order['number'] ?? 'Unknown'}",
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.green.shade50,
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                  child: Text(
+                                    order['status'] ?? "NEW",
+                                    style: TextStyle(
+                                      color: Colors.green.shade700,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            const Divider(height: 25),
+
+                            // Details: Time and Type
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.access_time,
+                                  size: 16,
+                                  color: Colors.grey[600],
+                                ),
+                                const SizedBox(width: 5),
+                                Text(
+                                  "$formattedDate • ${order['minsEstimated']} mins est.",
+                                  style: TextStyle(
+                                    color: Colors.grey.shade700,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+
+                            // Action Button
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  // Passing the specific UUID from your data
+                                  controller.pickOrder(order['id']);
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor:
+                                      controller.orderController.hasActiveOrder
+                                      ? Colors.grey
+                                      : const Color(0xFFFF5252),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 12,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                                child: Text(
+                                  controller.orderController.hasActiveOrder
+                                      ? "Complete Current Order"
+                                      : "Accept Delivery",
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ],
               );
             }),
           ),
