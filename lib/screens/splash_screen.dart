@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:nammastore_rider/consts/app_colors.dart';
 import 'package:nammastore_rider/controller/auth_controller.dart';
 import 'package:nammastore_rider/routes/app_pages.dart';
 import 'package:nammastore_rider/services/onboarding_service.dart';
@@ -51,15 +52,14 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.splashScreenColor,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // Your logo here
-            Image.asset('assets/icons/Loader.png', width: 100, height: 100),
-            const SizedBox(height: 20),
-            const CircularProgressIndicator(color: Colors.red),
+            // Your logo here
+            Image.asset('assets/icons/loader.gif', width: 150, height: 150),
           ],
         ),
       ),

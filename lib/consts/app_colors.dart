@@ -25,5 +25,9 @@ class AppColors {
   static final Color textSecondary = const Color(
     0xFF1e1a5b,
   ); // Example secondary text color
-  static final Color error = const Color(0xFFcd1c18); // Example error color
+  static final Color error = const Color(0xFFcd1c18);
+  static final Color splashScreenColor = const Color(
+    0xFFf3e3f7,
+  ); // Example error color
+  // Example error color
 }
