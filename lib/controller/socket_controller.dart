@@ -44,7 +44,13 @@ class SocketController extends GetxController {
         ack: (response) {
           AppLogger.instance.i(response.toString());
           if (response['success'] == true) {
-            orders.assignAll(response['data']);
+            final data = response['data'] as List<dynamic>;
+            final parsedOrders = data
+                .map(
+                  (item) => OrderModel.fromJson(item as Map<String, dynamic>),
+                )
+                .toList();
+            orders.assignAll(parsedOrders);
           }
         },
       );
@@ -58,9 +64,12 @@ class SocketController extends GetxController {
     socketService.on('delivery:new', (data) {
       if (data != null) {
         if (data is List) {
-          orders.addAll(data.cast<OrderModel>());
+          final parsedOrders = data
+              .map((item) => OrderModel.fromJson(item as Map<String, dynamic>))
+              .toList();
+          orders.addAll(parsedOrders);
         } else {
-          orders.add(data as OrderModel);
+          orders.add(OrderModel.fromJson(data));
         }
       }
     });
