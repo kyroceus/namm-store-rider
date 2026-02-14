@@ -66,9 +66,9 @@ flutter_launcher_icons:
 
 flutter_native_splash:
   color: "#f3e3f7"
-  image: assets/icons/logo.jpg
+  image: assets/icons/no_bg_logo.png
   android_12:
-    image: assets/icons/logo.jpg
+    image: assets/icons/no_bg_logo.png
     color: "#f3e3f7"
 
 # For information on the generic Dart part of this file, see the
