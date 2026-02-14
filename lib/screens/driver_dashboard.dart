@@ -397,7 +397,8 @@ class DriverDashboard extends GetView<DriverDashboardController> {
                     String formattedDate = DateFormat('d/M/y \'at\' h:mm a')
                         .format(
                           DateTime.parse(
-                            order['dateCreated'] ?? DateTime.now().toString(),
+                            order.dateCreated?.toString() ??
+                                DateTime.now().toString(),
                           ).toLocal(),
                         );
                     // ... rest of the card logic ...
@@ -418,7 +419,7 @@ class DriverDashboard extends GetView<DriverDashboardController> {
                               children: [
                                 Expanded(
                                   child: Text(
-                                    "#${order['number'] ?? 'Unknown'}",
+                                    "#${order.number ?? 'Unknown'}",
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 16,
@@ -436,7 +437,7 @@ class DriverDashboard extends GetView<DriverDashboardController> {
                                     borderRadius: BorderRadius.circular(5),
                                   ),
                                   child: Text(
-                                    order['status'] ?? "NEW",
+                                    order.status.value,
                                     style: TextStyle(
                                       color: Colors.green.shade700,
                                       fontSize: 11,
@@ -459,7 +460,7 @@ class DriverDashboard extends GetView<DriverDashboardController> {
                                 ),
                                 const SizedBox(width: 5),
                                 Text(
-                                  "$formattedDate • ${order['minsEstimated']} mins est.",
+                                  "$formattedDate • ${order.minsEstimated} mins est.",
                                   style: TextStyle(
                                     color: Colors.grey.shade700,
                                     fontSize: 14,
@@ -475,7 +476,7 @@ class DriverDashboard extends GetView<DriverDashboardController> {
                               child: ElevatedButton(
                                 onPressed: () {
                                   // Passing the specific UUID from your data
-                                  controller.pickOrder(order['id']);
+                                  controller.pickOrder(order.id!);
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor:

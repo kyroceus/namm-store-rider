@@ -1,9 +1,8 @@
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 
 class OrderModel {
-  final String? id;
+  final String id;
   final RxString status;
-  final RxnString nextStatus;
   final double? amount;
   final DateTime? dateCreated;
   final DateTime? timeDelivered;
@@ -15,7 +14,7 @@ class OrderModel {
   final String? otp;
 
   OrderModel({
-    this.id,
+    required this.id,
     required String status,
     this.otp,
 
@@ -25,12 +24,10 @@ class OrderModel {
     this.order,
     this.number,
     this.minsEstimated,
-  }) : status = status.obs,
-       nextStatus = RxnString(_nextStatusMap[status]);
+  }) : status = status.obs;
 
   void updateStatus(String newStatus) {
     status.value = newStatus;
-    nextStatus.value = _nextStatusMap[newStatus];
   }
 
   factory OrderModel.fromJson(Map<String, dynamic> json) {
@@ -52,14 +49,15 @@ class OrderModel {
       minsEstimated: json['minsEstimated'], // From socket
     );
   }
+
+  String? get nextStatus {
+    return _nextStatusMap[status.value];
+  }
+
   static const Map<String, String> _nextStatusMap = {
+    'PICKED_UP': 'OUT_FOR_DELIVERY',
     'OUT_FOR_DELIVERY': 'ARRIVED',
     'ARRIVED': 'DELIVERED',
-    // Rider flow
-    // 'DRIVER_ASSIGNED': 'PICKED_UP',
-    // 'PICKED_UP': 'OUT_FOR_DELIVERY',
-    // 'OUT_FOR_DELIVERY': 'ARRIVED',
-    // 'ARRIVED': 'DELIVERED',
   };
 }
 

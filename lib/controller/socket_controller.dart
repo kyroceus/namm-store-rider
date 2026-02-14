@@ -1,13 +1,17 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:logger/web.dart';
 import 'package:nammastore_rider/controller/auth_controller.dart';
+import 'package:nammastore_rider/controller/order_controller.dart';
+import 'package:nammastore_rider/models/order_model.dart';
+import 'package:nammastore_rider/services/logger_service.dart';
 import 'package:nammastore_rider/services/socket_service.dart';
 
 class SocketController extends GetxController {
   final SocketService socketService = Get.find<SocketService>();
 
-  final orders = <dynamic>[].obs;
+  final orders = <OrderModel>[].obs;
   final isConnected = false.obs;
 
   void init(String token) {
@@ -54,10 +58,38 @@ class SocketController extends GetxController {
     socketService.on('delivery:new', (data) {
       if (data != null) {
         if (data is List) {
-          orders.addAll(data);
+          orders.addAll(data.cast<OrderModel>());
         } else {
-          orders.add(data);
+          orders.add(data as OrderModel);
         }
+      }
+    });
+
+    socketService.on('delivery:status_change', (response) {
+      // response might be a Map or object depending on server implementation.
+      // Based on previous code: response.data.deliveryId looks like it was using a model,
+      // but the original code treated response as 'dynamic' in some places and map in others.
+      // The original code:
+      // socket.on('delivery:accepted', (response) {
+      //   orders.removeWhere(
+      //     (element) => element['id'] == response.data.deliveryId,
+      //   );
+      // });
+      // Wait, 'response.data.deliveryId' implies 'response' is an object?
+      // In JS/Dart socket.io, data is usually a Map <String, dynamic>.
+      // Let's assume response is a Map.
+      AppLogger.instance.i(response);
+      final activeDelivery = Get.find<OrderController>().activeOrder.value;
+      AppLogger.instance.i(activeDelivery);
+
+      final deliveryId =
+          response['data']?['deliveryId'] ?? response['deliveryId'];
+      final newStatus = response['data']?['newStatus'] ?? response['newStatus'];
+      AppLogger.instance.i(deliveryId + activeDelivery?.id + newStatus);
+      if (deliveryId != null &&
+          activeDelivery != null &&
+          activeDelivery.id == deliveryId) {
+        activeDelivery.status.value = newStatus;
       }
     });
 
@@ -78,7 +110,7 @@ class SocketController extends GetxController {
       final deliveryId =
           response['data']?['deliveryId'] ?? response['deliveryId'];
       if (deliveryId != null) {
-        orders.removeWhere((element) => element['id'] == deliveryId);
+        orders.removeWhere((element) => element.id == deliveryId);
       }
     });
   }
@@ -96,7 +128,7 @@ class SocketController extends GetxController {
       ack: (response) {
         if (response['success'] == true) {
           // Optimistically remove from local list
-          orders.removeWhere((element) => element['id'] == orderId);
+          orders.removeWhere((element) => element.id == orderId);
           Get.snackbar(
             "Success",
             "You got the order!",

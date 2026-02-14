@@ -330,14 +330,14 @@ class DeliveryDetailsScreen extends GetView<OrderController> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     // Dynamic Status Button
-                    if (order.nextStatus.value != null)
+                    if (order.nextStatus != null)
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
                           onPressed: controller.isLoading.value
                               ? null
                               : () {
-                                  final nextStatus = order.nextStatus.value;
+                                  final nextStatus = order.nextStatus;
                                   if (nextStatus == 'DELIVERED') {
                                     final otpController =
                                         TextEditingController();
@@ -398,8 +398,7 @@ class DeliveryDetailsScreen extends GetView<OrderController> {
                                   }
                                 },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                order.nextStatus.value == 'DELIVERED'
+                            backgroundColor: order.nextStatus == 'DELIVERED'
                                 ? Colors.green
                                 : const Color(0xFFFF5252),
                             padding: const EdgeInsets.symmetric(vertical: 15),
@@ -417,7 +416,7 @@ class DeliveryDetailsScreen extends GetView<OrderController> {
                                   ),
                                 )
                               : Text(
-                                  "Mark as ${order.nextStatus.value!.replaceAll('_', ' ')}",
+                                  "Mark as ${order.nextStatus?.replaceAll('_', ' ')}",
                                   style: const TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.bold,
