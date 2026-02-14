@@ -42,7 +42,7 @@ class SocketController extends GetxController {
         'delivery:initial',
         {},
         ack: (response) {
-          debugPrint(response.toString());
+          AppLogger.instance.i(response.toString());
           if (response['success'] == true) {
             orders.assignAll(response['data']);
           }
@@ -109,8 +109,12 @@ class SocketController extends GetxController {
 
       final deliveryId =
           response['data']?['deliveryId'] ?? response['deliveryId'];
+      final riderId = response['data']?['riderId'] ?? response['riderId'];
       if (deliveryId != null) {
         orders.removeWhere((element) => element.id == deliveryId);
+      }
+      if (riderId != Get.find<AuthController>().userId.value) {
+        Get.find<OrderController>().fetchActiveOrder();
       }
     });
   }
