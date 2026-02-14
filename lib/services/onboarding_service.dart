@@ -92,7 +92,7 @@ class OnboardingService extends GetxService {
     try {
       await HttpService.instance.request(
         path: '/v1/rider/profile',
-        method: 'POST',
+        method: 'PUT',
         body: info.toJson(),
         auth: true,
       );
@@ -100,6 +100,7 @@ class OnboardingService extends GetxService {
       _saveStep(OnboardingStep.documents);
       return true;
     } catch (e) {
+      print(e);
       Get.snackbar(
         'Error',
         e.toString(),
@@ -220,9 +221,9 @@ class OnboardingService extends GetxService {
       if (response != null && response is Map<String, dynamic>) {
         // Sync Verification Status
         // The user mentioned 'emailVerified' acts as account verification status
-        final emailVerified = response['emailVerified'] == true;
-        isVerified.value = emailVerified;
-        _storage.write('is_verified', emailVerified);
+        final verified = response['verified'] == true;
+        isVerified.value = verified;
+        _storage.write('is_verified', verified);
 
         // Sync Document Status
         for (var doc in _mockState.documents) {

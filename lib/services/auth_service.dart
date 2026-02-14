@@ -78,6 +78,12 @@ class AuthService extends GetxService {
         method: 'POST',
       );
 
+      authToken = data;
+      storage.write(
+        'token',
+        authToken,
+      ); // Ensure token is saved for profile fetch
+
       Get.back();
       showCustomSnackBar(
         title: "Success",
@@ -85,8 +91,22 @@ class AuthService extends GetxService {
         snackBarType: SnackBarType.success,
       );
       await Future.delayed(Duration(milliseconds: 200));
-      Get.offAllNamed(Routes.onboardingPersonalInfo);
-      authToken = data;
+
+      // Fetch profile to determine navigation
+      final rider = await fetchRiderProfile();
+
+      if (rider != null) {
+        if (rider.firstName == null) {
+          Get.offAllNamed(Routes.onboardingPersonalInfo);
+        } else if (rider.verified == false) {
+          Get.offAllNamed(Routes.onboardingSuccess);
+        } else {
+          Get.offAllNamed(Routes.driverDashboard);
+        }
+      } else {
+        // Fallback
+        Get.offAllNamed(Routes.onboardingPersonalInfo);
+      }
 
       return authToken;
     } catch (e) {

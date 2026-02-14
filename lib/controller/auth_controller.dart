@@ -102,7 +102,7 @@ class AuthController extends GetxController {
     storage.write(key, recent);
 
     // Allow max 3 requests in 1 hour
-    return recent.length >= 5;
+    return recent.length >= 50;
   }
 
   Future<void> sendOtpForDeletion() async {

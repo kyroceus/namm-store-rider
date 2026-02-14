@@ -24,6 +24,7 @@ class RiderModel {
   DateTime? deletedAt;
   String? email;
   bool? emailVerified;
+  bool? verified;
   DateTime? createdAt;
   String? otp;
   String? walletBalance;
@@ -57,6 +58,7 @@ class RiderModel {
     this.deletedAt,
     this.email,
     this.emailVerified,
+    this.verified,
     this.createdAt,
     this.otp,
     this.walletBalance,
@@ -95,6 +97,7 @@ class RiderModel {
         : null;
     email = json['email'];
     emailVerified = json['emailVerified'];
+    verified = json['verified'];
     createdAt = json['createdAt'] != null
         ? DateTime.tryParse(json['createdAt'])
         : null;
@@ -134,6 +137,7 @@ class RiderModel {
     data['deletedAt'] = deletedAt?.toIso8601String();
     data['email'] = email;
     data['emailVerified'] = emailVerified;
+    data['verified'] = verified;
     data['createdAt'] = createdAt?.toIso8601String();
     data['otp'] = otp;
     data['walletBalance'] = walletBalance;
