@@ -55,8 +55,8 @@ class OrderModel {
   }
 
   static const Map<String, String> _nextStatusMap = {
-    'PICKED_UP': 'OUT_FOR_DELIVERY',
-    'OUT_FOR_DELIVERY': 'ARRIVED',
+    'PICKED_UP': 'ARRIVED',
+    'PACKED': 'PICKED_UP',
     'ARRIVED': 'DELIVERED',
   };
 }

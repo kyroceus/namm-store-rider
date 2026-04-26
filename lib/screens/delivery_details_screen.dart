@@ -310,7 +310,7 @@ class DeliveryDetailsScreen extends GetView<OrderController> {
 
             // Action Buttons
             Container(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(2),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: const BorderRadius.only(
@@ -330,100 +330,106 @@ class DeliveryDetailsScreen extends GetView<OrderController> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     // Dynamic Status Button
-                    if (order.nextStatus != null)
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: controller.isLoading.value
-                              ? null
-                              : () {
-                                  final nextStatus = order.nextStatus;
-                                  if (nextStatus == 'DELIVERED') {
-                                    final otpController =
-                                        TextEditingController();
-                                    Get.dialog(
-                                      AlertDialog(
-                                        title: const Text("Verify OTP"),
-                                        content: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            const Text(
-                                              "Please enter the OTP provided by the customer.",
+                    order.nextStatus == null
+                        ? Center(
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 20.0),
+                              child: Text('Assigned order is getting packed'),
+                            ),
+                          )
+                        : SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: controller.isLoading.value
+                                  ? null
+                                  : () {
+                                      final nextStatus = order.nextStatus;
+                                      if (nextStatus == 'DELIVERED') {
+                                        final otpController =
+                                            TextEditingController();
+                                        Get.dialog(
+                                          AlertDialog(
+                                            title: const Text("Verify OTP"),
+                                            content: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                const Text(
+                                                  "Please enter the OTP provided by the customer.",
+                                                ),
+                                                const SizedBox(height: 15),
+                                                TextField(
+                                                  controller: otpController,
+                                                  keyboardType:
+                                                      TextInputType.number,
+                                                  maxLength: 6,
+                                                  decoration:
+                                                      const InputDecoration(
+                                                        border:
+                                                            OutlineInputBorder(),
+                                                        labelText: "OTP",
+                                                        counterText: "",
+                                                      ),
+                                                ),
+                                              ],
                                             ),
-                                            const SizedBox(height: 15),
-                                            TextField(
-                                              controller: otpController,
-                                              keyboardType:
-                                                  TextInputType.number,
-                                              maxLength: 6,
-                                              decoration: const InputDecoration(
-                                                border: OutlineInputBorder(),
-                                                labelText: "OTP",
-                                                counterText: "",
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () => Get.back(),
+                                                child: const Text("Cancel"),
                                               ),
-                                            ),
-                                          ],
-                                        ),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () => Get.back(),
-                                            child: const Text("Cancel"),
+                                              ElevatedButton(
+                                                onPressed: () {
+                                                  if (otpController.text ==
+                                                      order.otp) {
+                                                    Get.back();
+                                                    controller
+                                                        .updateOrderStatus(
+                                                          nextStatus!,
+                                                        );
+                                                  } else {
+                                                    Get.snackbar(
+                                                      "Error",
+                                                      "Invalid OTP",
+                                                      backgroundColor:
+                                                          Colors.red,
+                                                      colorText: Colors.white,
+                                                      snackPosition:
+                                                          SnackPosition.BOTTOM,
+                                                    );
+                                                  }
+                                                },
+                                                child: const Text("Verify"),
+                                              ),
+                                            ],
                                           ),
-                                          ElevatedButton(
-                                            onPressed: () {
-                                              if (otpController.text ==
-                                                  order.otp) {
-                                                Get.back();
-                                                controller.updateOrderStatus(
-                                                  nextStatus!,
-                                                );
-                                              } else {
-                                                Get.snackbar(
-                                                  "Error",
-                                                  "Invalid OTP",
-                                                  backgroundColor: Colors.red,
-                                                  colorText: Colors.white,
-                                                  snackPosition:
-                                                      SnackPosition.BOTTOM,
-                                                );
-                                              }
-                                            },
-                                            child: const Text("Verify"),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  } else {
-                                    controller.updateOrderStatus(nextStatus!);
-                                  }
-                                },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: order.nextStatus == 'DELIVERED'
-                                ? Colors.green
-                                : const Color(0xFFFF5252),
-                            padding: const EdgeInsets.symmetric(vertical: 15),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15),
+                                        );
+                                      } else {
+                                        controller.updateOrderStatus(
+                                          nextStatus!,
+                                        );
+                                      }
+                                    },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: order.nextStatus == 'DELIVERED'
+                                    ? Colors.green
+                                    : const Color(0xFFFF5252),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 15,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                              ),
+                              child: Text(
+                                "Mark as ${order.nextStatus?.replaceAll('_', ' ')}",
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
                             ),
                           ),
-                          child: controller.isLoading.value
-                              ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : Text(
-                                  "Mark as ${order.nextStatus?.replaceAll('_', ' ')}",
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                        ),
-                      ),
                   ],
                 ),
               ),
